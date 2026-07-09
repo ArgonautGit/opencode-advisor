@@ -995,6 +995,7 @@ export async function runMini(input: MiniCommandInput) {
     fork: input.fork,
     share: undefined,
     model: input.model,
+    advisor: undefined,
     agent: input.agent,
     format: "default",
     file: undefined,

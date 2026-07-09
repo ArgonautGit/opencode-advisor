@@ -80,7 +80,7 @@ export const AdvisorTool = Tool.define(
           return {
             title: `Advisor (${label})`,
             output: cleaned || "The advisor returned no guidance.",
-            metadata: { model: label },
+            metadata: {},
           }
         }),
     }

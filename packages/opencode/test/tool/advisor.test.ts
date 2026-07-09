@@ -40,7 +40,7 @@ const withoutAdvisor = testEffect(
 )
 
 describe("advisor tool gating", () => {
-  withAdvisor("registers the advisor tool when advisor_model is configured", () =>
+  withAdvisor.instance("registers the advisor tool when advisor_model is configured", () =>
     Effect.gen(function* () {
       const registry = yield* ToolRegistry.Service
       const ids = yield* registry.ids()
@@ -48,7 +48,7 @@ describe("advisor tool gating", () => {
     }),
   )
 
-  withoutAdvisor("hides the advisor tool when advisor_model is unset", () =>
+  withoutAdvisor.instance("hides the advisor tool when advisor_model is unset", () =>
     Effect.gen(function* () {
       const registry = yield* ToolRegistry.Service
       const ids = yield* registry.ids()
@@ -56,7 +56,7 @@ describe("advisor tool gating", () => {
     }),
   )
 
-  withAdvisor("hides the advisor tool when OPENCODE_DISABLE_ADVISOR is set", () =>
+  withAdvisor.instance("hides the advisor tool when OPENCODE_DISABLE_ADVISOR is set", () =>
     Effect.gen(function* () {
       process.env["OPENCODE_DISABLE_ADVISOR"] = "1"
       const registry = yield* ToolRegistry.Service
