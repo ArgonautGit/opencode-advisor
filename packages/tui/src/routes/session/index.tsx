@@ -46,6 +46,7 @@ import { useEditorContext } from "../../context/editor"
 import { openEditor } from "../../editor"
 import { useDialog } from "../../ui/dialog"
 import { DialogAlert } from "../../ui/dialog-alert"
+import { DialogPrompt } from "../../ui/dialog-prompt"
 import { TodoItem } from "../../component/todo-item"
 import { DialogMessage } from "./dialog-message"
 import type { PromptInfo } from "../../component/prompt/history"
@@ -505,6 +506,38 @@ export function Session() {
       },
       run: () => {
         dialog.replace(() => <DialogSessionRename session={route.sessionID} />)
+      },
+    },
+    {
+      title: "Set advisor model",
+      value: "session.advisor",
+      category: "Session",
+      slash: {
+        name: "advisor",
+      },
+      run: async () => {
+        const current = sync.data.config.advisor_model ?? ""
+        const value = await DialogPrompt.show(dialog, "Advisor model", {
+          placeholder: "provider/model (e.g. anthropic/claude-opus-4-8) — blank to disable",
+          value: current,
+        })
+        if (value === null) return
+        const advisor_model = value.trim()
+        await sdk.client.config
+          .update({ config: { advisor_model } })
+          .then(() =>
+            toast.show({
+              message: advisor_model ? `Advisor model set to ${advisor_model}` : "Advisor disabled",
+              variant: "success",
+            }),
+          )
+          .catch((error) =>
+            toast.show({
+              message: error instanceof Error ? error.message : "Failed to update advisor model",
+              variant: "error",
+            }),
+          )
+        dialog.clear()
       },
     },
     {

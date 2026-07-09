@@ -21260,6 +21260,9 @@
           "small_model": {
             "type": "string"
           },
+          "advisor_model": {
+            "type": "string"
+          },
           "default_agent": {
             "type": "string"
           },

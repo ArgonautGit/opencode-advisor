@@ -1254,6 +1254,10 @@ export type Config = {
    */
   small_model?: string
   /**
+   * Stronger model the `advisor` tool consults for strategic guidance, in the format of provider/model. When set, the advisor tool becomes available so the main model can escalate hard decisions.
+   */
+  advisor_model?: string
+  /**
    * Custom username to display in conversations instead of system username
    */
   username?: string

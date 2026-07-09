@@ -1147,6 +1147,7 @@ export interface Interface {
     query: string[],
   ) => Effect.Effect<{ providerID: ProviderV2.ID; modelID: string } | undefined>
   readonly getSmallModel: (providerID: ProviderV2.ID) => Effect.Effect<Model | undefined>
+  readonly getAdvisorModel: () => Effect.Effect<Model | undefined>
   readonly defaultModel: () => Effect.Effect<{ providerID: ProviderV2.ID; modelID: ModelV2.ID }, DefaultModelError>
 }
 
@@ -1921,6 +1922,16 @@ const layer = Layer.effect(
       return undefined
     })
 
+    const getAdvisorModel = Effect.fn("Provider.getAdvisorModel")(function* () {
+      const cfg = yield* config.get()
+      const advisorModel = cfg.advisor_model ?? process.env["OPENCODE_ADVISOR_MODEL"]
+      if (!advisorModel) return undefined
+      const parsed = parseModel(advisorModel)
+      return yield* getModel(parsed.providerID, parsed.modelID).pipe(
+        Effect.catchTag("ProviderModelNotFoundError", () => Effect.succeed(undefined)),
+      )
+    })
+
     const defaultModel = Effect.fn("Provider.defaultModel")(function* () {
       const cfg = yield* config.get()
       if (cfg.model) return parseModel(cfg.model)
@@ -1956,7 +1967,16 @@ const layer = Layer.effect(
       }
     })
 
-    return Service.of({ list, getProvider, getModel, getLanguage, closest, getSmallModel, defaultModel })
+    return Service.of({
+      list,
+      getProvider,
+      getModel,
+      getLanguage,
+      closest,
+      getSmallModel,
+      getAdvisorModel,
+      defaultModel,
+    })
   }),
 )
 

@@ -14,6 +14,8 @@ import { Database } from "@opencode-ai/core/database/database"
 import { TodoWriteTool } from "./todo"
 import { WebFetchTool } from "./webfetch"
 import { WriteTool } from "./write"
+import { AdvisorTool } from "./advisor"
+import { LLM } from "@/session/llm"
 import { InvalidTool } from "./invalid"
 import { SkillTool } from "./skill"
 import * as Tool from "./tool"
@@ -109,6 +111,7 @@ const layer = Layer.effect(
     const greptool = yield* GrepTool
     const patchtool = yield* ApplyPatchTool
     const skilltool = yield* SkillTool
+    const advisor = yield* AdvisorTool
     const agent = yield* Agent.Service
     const codeMode = flags.experimentalCodeMode ? yield* Effect.promise(() => import("./code-mode")) : undefined
     const codeModeTool = codeMode ? yield* codeMode.CodeModeTool : undefined
@@ -198,8 +201,13 @@ const layer = Layer.effect(
           }
         }
 
-        yield* config.get()
+        const cfg = yield* config.get()
         const questionEnabled = ["app", "cli", "desktop"].includes(flags.client) || flags.enableQuestionTool
+        const advisorModel = cfg.advisor_model ?? process.env["OPENCODE_ADVISOR_MODEL"]
+        const advisorEnabled =
+          typeof advisorModel === "string" &&
+          advisorModel.length > 0 &&
+          !["1", "true", "yes"].includes((process.env["OPENCODE_DISABLE_ADVISOR"] ?? "").toLowerCase())
 
         const tool = yield* Effect.all({
           invalid: Tool.init(invalid),
@@ -218,6 +226,7 @@ const layer = Layer.effect(
           question: Tool.init(question),
           lsp: Tool.init(lsptool),
           plan: Tool.init(plan),
+          advisor: Tool.init(advisor),
           ...(codeModeTool ? { execute: Tool.init(codeModeTool) } : {}),
         })
 
@@ -238,6 +247,7 @@ const layer = Layer.effect(
             tool.search,
             tool.skill,
             tool.patch,
+            ...(advisorEnabled ? [tool.advisor] : []),
             ...(tool.execute ? [tool.execute] : []),
             ...(flags.experimentalLspTool ? [tool.lsp] : []),
             ...(flags.experimentalPlanMode && flags.client === "cli" ? [tool.plan] : []),
@@ -432,6 +442,7 @@ export const node = LayerNode.make({
     Session.node,
     BackgroundJob.node,
     Provider.node,
+    LLM.node,
     LSP.node,
     Instruction.node,
     FSUtil.node,

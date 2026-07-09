@@ -1927,6 +1927,7 @@ export type Config = {
   enabled_providers?: Array<string>
   model?: string
   small_model?: string
+  advisor_model?: string
   default_agent?: string
   username?: string
   mode?: {

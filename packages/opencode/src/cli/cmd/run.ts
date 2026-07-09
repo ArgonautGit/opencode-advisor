@@ -167,6 +167,11 @@ export const RunCommand = effectCmd({
         alias: ["m"],
         describe: "model to use in the format of provider/model",
       })
+      .option("advisor", {
+        type: "string",
+        describe:
+          "advisor model the advisor tool consults for guidance, in the format of provider/model (e.g. anthropic/claude-opus-4-8)",
+      })
       .option("agent", {
         type: "string",
         describe: "agent to use",
@@ -268,6 +273,10 @@ export const RunCommand = effectCmd({
     const agentSvc = yield* Agent.Service
     const flags = yield* RuntimeFlags.Service
     const localInstance = yield* InstanceRef
+    // Set before the in-process server starts so the provider's advisor resolver
+    // picks it up for this run. A single-session override that leaves saved config
+    // untouched, mirroring how --model overrides the model per session.
+    if (args.advisor) process.env["OPENCODE_ADVISOR_MODEL"] = args.advisor
     yield* Effect.promise(async () => {
       const rawMessage = [...args.message, ...(args["--"] || [])].join(" ")
       const interactive = args.mini

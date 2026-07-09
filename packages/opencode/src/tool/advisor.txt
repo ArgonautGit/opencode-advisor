@@ -1,0 +1,11 @@
+Consult a stronger advisor model for strategic guidance on hard decisions.
+
+Use the advisor at high-leverage moments, where getting the plan right matters more than raw speed:
+
+- Before committing to an approach on a large or ambiguous task (a refactor, a new design, a migration).
+- When an error or test failure keeps recurring and your fixes are not converging.
+- Before declaring a task complete, to independently check your work.
+
+The advisor receives the full conversation so far — the task, every tool call, and its results — and returns concise, high-leverage guidance: a plan, a course correction, or a signal to stop. Apply the guidance, but if your own evidence contradicts a specific claim (a recommended step fails when you try it, or the files say otherwise), surface the conflict rather than following it blindly.
+
+Reserve the advisor for genuine uncertainty. Do not call it every turn or for routine steps you can already handle — each call consults a larger model and costs time and tokens. In `question`, state clearly what you are stuck on or the decision you want reviewed, including the tradeoffs, the error, or the plan you are weighing.
